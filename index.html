@@ -14,9 +14,9 @@
       html {
         --color-text-primary: white;
         --color-text-secondary: rgba(255, 255, 255, 0.7);
-        --color-border: rgba(255, 255, 255, 0.07);
+        --color-border: rgba(255, 255, 255, 0.15);
         --color-background: oklch(14.7% 0.004 49.25);
-        --color-background-secondary: oklch(21.6% 0.006 56.043);
+        --color-background-secondary: rgba(255, 255, 255, 0.05);
         --color-background-tertiary: oklch(26.8% 0.007 34.298);
         --color-background-button: oklch(54.1% 0.281 293.009);
         --color-background-button-hover: oklch(34.5% 0.01 69.832);
@@ -30,7 +30,7 @@
         background-color: var(--color-background);
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
         min-height: 100vh;
       }
@@ -38,11 +38,13 @@
       .container {
         background: var(--color-background-secondary);
         padding: 24px;
-        border-radius: 10px;
+        border-radius: 24px;
         border: 1px solid var(--color-border);
         width: 100%;
         max-width: 600px;
+        backdrop-filter: blur(6px);
       }
+
       h1 {
         color: var(--color-text-primary);
         font-size: 2.3rem;
@@ -50,7 +52,7 @@
         text-align: center;
         font-weight: 500;
         position: relative;
-        margin-bottom: 8px;
+        margin: -32px 0 8px 0;
       }
 
       .title-description {
@@ -68,8 +70,6 @@
         font-size: 0.9rem;
         line-height: 1.5;
         margin-bottom: 16px;
-        border-left: 2px solid var(--color-text-secondary);
-        padding-left: 8px;
       }
 
       .form-group {
@@ -138,6 +138,13 @@
         color: var(--color-text-primary);
       }
 
+      .moon-container {
+        width: 200px;
+        height: 200px;
+        margin: 20px auto 0px auto;
+        position: relative;
+      }
+
       @media (max-width: 600px) {
         h1 {
           font-size: 1.8rem;
@@ -147,9 +154,11 @@
           padding: 16px;
         }
       }
+
     </style>
   </head>
   <body>
+    <div class="moon-container" id="moonContainer"></div>
     <h1>음력 날짜 ICS 변환기</h1>
     <p class="title-description">
       음력 행사(생일, 기념일 등)을 양력으로 변환 후, <br />캘린더 앱에 간편하게

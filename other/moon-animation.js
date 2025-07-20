@@ -5,7 +5,7 @@ class MoonAnimation {
         this.moonCanvas = null;
         this.ctx = null;
         this.phase = 0;
-        this.animationSpeed = 0.0003; // Complete cycle every ~63 seconds
+        this.animationSpeed = 0.0003; // Complete cycle every ~21 seconds
         
         this.init();
     }
@@ -20,32 +20,26 @@ class MoonAnimation {
     }
     
     setupMoon() {
-        const h1 = document.querySelector('h1');
-        if (!h1) return;
-        
-        // Create container for moon
-        this.container = document.createElement('div');
-        this.container.className = 'moon-container';
-        this.container.style.cssText = `
-            width: 200px;
-            height: 200px;
-            display: block;
-            margin: 30px auto 15px auto;
-            position: relative;
-        `;
+        // Find the existing moon container
+        this.container = document.getElementById('moonContainer');
+        if (!this.container) return;
         
         // Create canvas for moon
         this.moonCanvas = document.createElement('canvas');
         
         // Get device pixel ratio for sharp rendering
         const dpr = window.devicePixelRatio || 1;
-        const size = 200;
         
-        this.moonCanvas.width = size * dpr;
-        this.moonCanvas.height = size * dpr;
+        // Get container dimensions
+        const containerWidth = this.container.offsetWidth;
+        const containerHeight = this.container.offsetHeight;
+        
+        // Set canvas size to match container
+        this.moonCanvas.width = containerWidth * dpr;
+        this.moonCanvas.height = containerHeight * dpr;
         this.moonCanvas.style.cssText = `
-            width: ${size}px;
-            height: ${size}px;
+            width: 100%;
+            height: 100%;
             position: absolute;
             top: 0;
             left: 0;
@@ -55,51 +49,39 @@ class MoonAnimation {
         this.ctx.scale(dpr, dpr);
         this.container.appendChild(this.moonCanvas);
         
-        // Insert moon container before h1
-        h1.parentNode.insertBefore(this.container, h1);
-        
-        // Add margin to h1 to create space
-        h1.style.marginTop = '0';
-        
-        // Add responsive handling
-        this.addResponsiveStyles();
+        // Handle resize
+        window.addEventListener('resize', () => this.handleResize());
         
         // Start animation
         this.animate();
     }
     
-    addResponsiveStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            @media (max-width: 768px) {
-                .moon-container {
-                    width: 150px !important;
-                    height: 150px !important;
-                    margin: 24px auto 15px auto !important;
-                }
-                .moon-container canvas {
-                    width: 150px !important;
-                    height: 150px !important;
-                }
-            }
-        `;
-        document.head.appendChild(style);
+    handleResize() {
+        const dpr = window.devicePixelRatio || 1;
+        const containerWidth = this.container.offsetWidth;
+        const containerHeight = this.container.offsetHeight;
+        
+        this.moonCanvas.width = containerWidth * dpr;
+        this.moonCanvas.height = containerHeight * dpr;
+        this.ctx.scale(dpr, dpr);
     }
     
     drawMoon() {
         const ctx = this.ctx;
-        const centerX = 100;
-        const centerY = 100;
-        const radius = 40;
+        const canvasWidth = this.container.offsetWidth;
+        const canvasHeight = this.container.offsetHeight;
+        const centerX = canvasWidth / 2;
+        const centerY = canvasHeight / 2;
+        const radius = Math.min(canvasWidth, canvasHeight) * 0.2; // 40% of container size
         
         // Clear canvas
-        ctx.clearRect(0, 0, 200, 200);
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         
         // Save context state
         ctx.save();
         
         // Create clipping mask for glow (larger than moon to show glow around edges)
-        const glowRadius = radius + 30;
+        const glowRadius = radius + (radius * 0.75);
         
         // Draw glow first (before clipping)
         const glowGradient = ctx.createRadialGradient(centerX, centerY, radius * 0.8, centerX, centerY, glowRadius);
@@ -110,7 +92,7 @@ class MoonAnimation {
         glowGradient.addColorStop(1, 'transparent');
         
         ctx.fillStyle = glowGradient;
-        ctx.fillRect(0, 0, 200, 200);
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
         
         // Draw moon base (bright circle)
         ctx.beginPath();
@@ -133,15 +115,15 @@ class MoonAnimation {
         // Add subtle surface texture
         ctx.globalAlpha = 0.15;
         ctx.fillStyle = '#d4d4aa';
-        // Mare regions
+        // Mare regions (scale with moon size)
         ctx.beginPath();
-        ctx.arc(centerX + 12, centerY - 8, 8, 0, Math.PI * 2);
+        ctx.arc(centerX + radius * 0.3, centerY - radius * 0.2, radius * 0.2, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(centerX - 8, centerY + 12, 6, 0, Math.PI * 2);
+        ctx.arc(centerX - radius * 0.2, centerY + radius * 0.3, radius * 0.15, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(centerX + 4, centerY + 16, 5, 0, Math.PI * 2);
+        ctx.arc(centerX + radius * 0.1, centerY + radius * 0.4, radius * 0.125, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
         
