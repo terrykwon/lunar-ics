@@ -166,35 +166,38 @@ class MoonAnimation {
     }
     
     drawPhase(ctx, centerX, centerY, radius) {
-        // Calculate phase position (0 = new moon, 0.5 = full moon, 1 = new moon)
-        const cyclePos = this.phase % 1;
+        // Calculate phase angle for continuous rotation
+        const angle = this.phase * Math.PI * 2;
         
         ctx.save();
+        
+        // Clip to moon circle
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         ctx.clip();
         
-        if (cyclePos < 0.5) {
-            // Waxing (new to full)
-            const coverage = cyclePos * 2;
-            const shadowX = centerX - radius + (coverage * radius * 2);
-            
-            // Draw shadow
-            ctx.beginPath();
-            ctx.arc(shadowX, centerY, radius * 1.2, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-            ctx.fill();
-        } else {
-            // Waning (full to new)
-            const coverage = (cyclePos - 0.5) * 2;
-            const shadowX = centerX + radius - (coverage * radius * 2);
-            
-            // Draw shadow from the other side
-            ctx.beginPath();
-            ctx.arc(shadowX, centerY, radius * 1.2, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-            ctx.fill();
-        }
+        // Calculate shadow position based on angle
+        // Distance from center for realistic phase effect
+        const shadowDistance = radius * 1.5;
+        const shadowX = centerX + Math.cos(angle) * shadowDistance;
+        const shadowY = centerY + Math.sin(angle) * shadowDistance * 0.3; // Slight vertical movement for realism
+        
+        // Draw shadow circle
+        ctx.beginPath();
+        const shadowRadius = radius * 1.8;
+        ctx.arc(shadowX, shadowY, shadowRadius, 0, Math.PI * 2);
+        
+        // Create gradient for softer shadow edge
+        const gradient = ctx.createRadialGradient(
+            shadowX, shadowY, shadowRadius * 0.7,
+            shadowX, shadowY, shadowRadius
+        );
+        gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
+        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.9)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+        
+        ctx.fillStyle = gradient;
+        ctx.fill();
         
         ctx.restore();
     }
