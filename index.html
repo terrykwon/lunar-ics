@@ -78,7 +78,10 @@
 
       .form-group--leap-month {
         margin-top: -12px;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
       label {
@@ -200,6 +203,11 @@
         font-size: 14px;
       }
 
+      .footer-author a {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+      }
+
       .github-link {
         display: inline-flex;
         align-items: center;
@@ -312,7 +320,7 @@
 
     <footer>
       <div class="footer-content">
-        <div class="footer-author">Made with ❤️ by terrykwon</div>
+        <div class="footer-author">Made with ❤️ by <a href="https://terrykwon.com" target="_blank" rel="noopener noreferrer">terrykwon</a></div>
         <span>|</span>
         <a
           href="https://github.com/terrykwon/lunar-ics"
