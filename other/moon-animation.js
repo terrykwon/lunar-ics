@@ -1,12 +1,11 @@
-// Moon animation with realistic waxing and waning phases
+// Moon animation with dark circle passing over glowing circle
 class MoonAnimation {
     constructor() {
         this.container = null;
         this.moonCanvas = null;
         this.ctx = null;
         this.phase = 0;
-        this.glowIntensity = 0.5;
-        this.glowDirection = 1;
+        this.animationSpeed = 0.0003; // Complete cycle every ~63 seconds
         
         this.init();
     }
@@ -28,12 +27,11 @@ class MoonAnimation {
         this.container = document.createElement('div');
         this.container.className = 'moon-container';
         this.container.style.cssText = `
-            position: absolute;
             width: 200px;
             height: 200px;
-            left: -120px;
-            top: 50%;
-            transform: translateY(-50%);
+            display: block;
+            margin: 30px auto 15px auto;
+            position: relative;
         `;
         
         // Create canvas for moon
@@ -57,9 +55,11 @@ class MoonAnimation {
         this.ctx.scale(dpr, dpr);
         this.container.appendChild(this.moonCanvas);
         
-        // Make h1 relative positioned if not already
-        h1.style.position = 'relative';
-        h1.appendChild(this.container);
+        // Insert moon container before h1
+        h1.parentNode.insertBefore(this.container, h1);
+        
+        // Add margin to h1 to create space
+        h1.style.marginTop = '0';
         
         // Add responsive handling
         this.addResponsiveStyles();
@@ -73,16 +73,13 @@ class MoonAnimation {
         style.textContent = `
             @media (max-width: 768px) {
                 .moon-container {
-                    position: static !important;
-                    display: inline-block !important;
-                    margin-right: 10px !important;
-                    vertical-align: middle !important;
-                    transform: none !important;
+                    width: 150px !important;
+                    height: 150px !important;
+                    margin: 24px auto 15px auto !important;
                 }
-                h1 {
-                    display: flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
+                .moon-container canvas {
+                    width: 150px !important;
+                    height: 150px !important;
                 }
             }
         `;
@@ -98,18 +95,24 @@ class MoonAnimation {
         // Clear canvas
         ctx.clearRect(0, 0, 200, 200);
         
-        // Draw glow
-        const glowRadius = radius + 20 + (this.glowIntensity * 10);
-        const gradient = ctx.createRadialGradient(centerX, centerY, radius, centerX, centerY, glowRadius);
-        gradient.addColorStop(0, `rgba(255, 255, 200, ${this.glowIntensity * 0.3})`);
-        gradient.addColorStop(0.4, `rgba(255, 255, 200, ${this.glowIntensity * 0.2})`);
-        gradient.addColorStop(0.7, `rgba(200, 200, 255, ${this.glowIntensity * 0.1})`);
-        gradient.addColorStop(1, 'transparent');
+        // Save context state
+        ctx.save();
         
-        ctx.fillStyle = gradient;
+        // Create clipping mask for glow (larger than moon to show glow around edges)
+        const glowRadius = radius + 30;
+        
+        // Draw glow first (before clipping)
+        const glowGradient = ctx.createRadialGradient(centerX, centerY, radius * 0.8, centerX, centerY, glowRadius);
+        glowGradient.addColorStop(0, 'rgba(255, 255, 200, 0.6)');
+        glowGradient.addColorStop(0.3, 'rgba(255, 255, 200, 0.4)');
+        glowGradient.addColorStop(0.5, 'rgba(200, 200, 255, 0.2)');
+        glowGradient.addColorStop(0.7, 'rgba(150, 150, 255, 0.1)');
+        glowGradient.addColorStop(1, 'transparent');
+        
+        ctx.fillStyle = glowGradient;
         ctx.fillRect(0, 0, 200, 200);
         
-        // Draw moon base (lit part)
+        // Draw moon base (bright circle)
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         const moonGradient = ctx.createRadialGradient(
@@ -120,153 +123,65 @@ class MoonAnimation {
             centerY, 
             radius
         );
-        moonGradient.addColorStop(0, '#fffef0');
-        moonGradient.addColorStop(0.6, '#fff8dc');
+        moonGradient.addColorStop(0, '#fffef9');
+        moonGradient.addColorStop(0.5, '#fff8dc');
+        moonGradient.addColorStop(0.8, '#ffeaa7');
         moonGradient.addColorStop(1, '#f0e68c');
         ctx.fillStyle = moonGradient;
         ctx.fill();
         
-        // Draw moon surface details
-        ctx.globalAlpha = 0.1;
-        this.drawCraters(ctx, centerX, centerY, radius);
+        // Add subtle surface texture
+        ctx.globalAlpha = 0.15;
+        ctx.fillStyle = '#d4d4aa';
+        // Mare regions
+        ctx.beginPath();
+        ctx.arc(centerX + 12, centerY - 8, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(centerX - 8, centerY + 12, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(centerX + 4, centerY + 16, 5, 0, Math.PI * 2);
+        ctx.fill();
         ctx.globalAlpha = 1;
-        
-        // Draw shadow for moon phases
-        this.drawPhase(ctx, centerX, centerY, radius);
         
         // Draw edge highlight
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 0.5;
+        ctx.arc(centerX, centerY, radius - 0.5, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 1;
         ctx.stroke();
-    }
-    
-    drawCraters(ctx, centerX, centerY, radius) {
-        // Simple crater representation
-        const craters = [
-            { x: 0.3, y: -0.2, r: 0.15 },
-            { x: -0.2, y: 0.3, r: 0.1 },
-            { x: 0.1, y: 0.4, r: 0.12 },
-            { x: -0.4, y: -0.1, r: 0.08 }
-        ];
         
-        ctx.fillStyle = '#d4d4aa';
-        craters.forEach(crater => {
-            ctx.beginPath();
-            ctx.arc(
-                centerX + crater.x * radius,
-                centerY + crater.y * radius,
-                crater.r * radius,
-                0,
-                Math.PI * 2
-            );
-            ctx.fill();
-        });
-    }
-    
-    drawPhase(ctx, centerX, centerY, radius) {
-        // Phase: 0 = new moon, 0.25 = first quarter, 0.5 = full moon, 0.75 = last quarter
-        const phase = this.phase;
+        // Calculate dark circle position based on phase
+        // phase 0 = new moon (dark circle covers moon)
+        // phase 0.5 = full moon (dark circle is far away)
+        // phase 1 = back to new moon
         
-        ctx.save();
+        // Convert phase to position (left to right movement)
+        let darkX;
+        const darkY = centerY;
+        const darkRadius = radius * 1.2;
+        const travelDistance = radius * 2; // Reduced distance so moon is covered more often
         
-        // Clip to moon circle
+        // Left to right movement with continuous loop
+        const progress = this.phase; // 0 to 1
+        darkX = centerX - travelDistance + (progress * travelDistance * 2);
+        
+        // Draw dark shadow circle with exact background color
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.clip();
+        ctx.arc(darkX, darkY, darkRadius, 0, Math.PI * 2);
+        ctx.fillStyle = 'oklch(14.7% 0.004 49.25)'; // Exact --color-background
+        ctx.fill();
         
-        // New moon - full shadow
-        if (phase < 0.02 || phase > 0.98) {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-            ctx.fillRect(centerX - radius - 5, centerY - radius - 5, radius * 2 + 10, radius * 2 + 10);
-            ctx.restore();
-            return;
-        }
-        
-        // Full moon - no shadow
-        if (Math.abs(phase - 0.5) < 0.02) {
-            ctx.restore();
-            return;
-        }
-        
-        // For waxing and waning phases
-        if (phase <= 0.5) {
-            // Waxing phase (new to full)
-            const progress = phase / 0.5; // 0 to 1
-            
-            if (progress < 0.5) {
-                // Waxing crescent (shadow on left, curved inward)
-                const curveAmount = 1 - (progress * 2); // 1 to 0
-                
-                // Left side shadow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-                ctx.fillRect(centerX - radius - 5, centerY - radius - 5, radius + 5, radius * 2 + 10);
-                
-                // Curved terminator
-                ctx.beginPath();
-                ctx.ellipse(centerX, centerY, radius * curveAmount, radius, 0, -Math.PI/2, Math.PI/2);
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-                ctx.fill();
-            } else {
-                // Waxing gibbous (shadow on left, curved outward)
-                const curveAmount = (progress - 0.5) * 2; // 0 to 1
-                
-                // Left side shadow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-                ctx.fillRect(centerX - radius - 5, centerY - radius - 5, radius + 5, radius * 2 + 10);
-                
-                // Curved terminator (light colored, eating into shadow)
-                ctx.beginPath();
-                ctx.ellipse(centerX, centerY, radius * curveAmount, radius, 0, -Math.PI/2, Math.PI/2);
-                ctx.fillStyle = '#fff8dc';
-                ctx.fill();
-            }
-        } else {
-            // Waning phase (full to new)
-            const progress = (phase - 0.5) / 0.5; // 0 to 1
-            
-            if (progress < 0.5) {
-                // Waning gibbous (shadow on right, curved outward)
-                const curveAmount = progress * 2; // 0 to 1
-                
-                // Right side shadow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-                ctx.fillRect(centerX, centerY - radius - 5, radius + 5, radius * 2 + 10);
-                
-                // Curved terminator (dark colored, eating into light)
-                ctx.beginPath();
-                ctx.ellipse(centerX, centerY, radius * curveAmount, radius, 0, Math.PI/2, -Math.PI/2);
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-                ctx.fill();
-            } else {
-                // Waning crescent (shadow on right, curved inward)
-                const curveAmount = 1 - ((progress - 0.5) * 2); // 1 to 0
-                
-                // Right side shadow
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-                ctx.fillRect(centerX, centerY - radius - 5, radius + 5, radius * 2 + 10);
-                
-                // Curved terminator (light colored)
-                ctx.beginPath();
-                ctx.ellipse(centerX, centerY, radius * curveAmount, radius, 0, Math.PI/2, -Math.PI/2);
-                ctx.fillStyle = '#fff8dc';
-                ctx.fill();
-            }
-        }
-        
+        // Restore context
         ctx.restore();
     }
     
     animate() {
-        // Update phase (complete cycle every 60 seconds)
-        this.phase += 0.0003;
-        if (this.phase > 1) this.phase = 0;
-        
-        // Update glow pulsing (slower)
-        this.glowIntensity += 0.002 * this.glowDirection;
-        if (this.glowIntensity > 1 || this.glowIntensity < 0.3) {
-            this.glowDirection *= -1;
+        // Update phase continuously
+        this.phase += this.animationSpeed;
+        if (this.phase >= 1) {
+            this.phase -= 1; // Loop back smoothly
         }
         
         // Draw moon
