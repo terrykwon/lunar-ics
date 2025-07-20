@@ -29,8 +29,8 @@ class MoonAnimation {
         this.container.className = 'moon-container';
         this.container.style.cssText = `
             position: absolute;
-            width: 100px;
-            height: 100px;
+            width: 200px;
+            height: 200px;
             left: -120px;
             top: 50%;
             transform: translateY(-50%);
@@ -38,17 +38,23 @@ class MoonAnimation {
         
         // Create canvas for moon
         this.moonCanvas = document.createElement('canvas');
-        this.moonCanvas.width = 200; // 2x for retina
-        this.moonCanvas.height = 200;
+        
+        // Get device pixel ratio for sharp rendering
+        const dpr = window.devicePixelRatio || 1;
+        const size = 200;
+        
+        this.moonCanvas.width = size * dpr;
+        this.moonCanvas.height = size * dpr;
         this.moonCanvas.style.cssText = `
-            width: 100px;
-            height: 100px;
+            width: ${size}px;
+            height: ${size}px;
             position: absolute;
             top: 0;
             left: 0;
         `;
         
         this.ctx = this.moonCanvas.getContext('2d');
+        this.ctx.scale(dpr, dpr);
         this.container.appendChild(this.moonCanvas);
         
         // Make h1 relative positioned if not already
@@ -132,7 +138,7 @@ class MoonAnimation {
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 0.5;
         ctx.stroke();
     }
     
