@@ -206,7 +206,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 icsGen.addEvent(eventName, solarDate);
             }
             
-            const filename = `${eventName.replace(/[^a-z0-9]/gi, '_')}_lunar_dates.ics`;
+            // Generate filename with date and repeat info
+            const cleanEventName = eventName.replace(/[^a-zA-Z0-9가-힣]/g, '_');
+            const dateInfo = `음력_${lunarMonth}_${lunarDay}`;
+            const repeatInfo = repeatType === 'yearly' ? `_반복${repeatYears}년` : '';
+            const filename = `${cleanEventName}_${dateInfo}${repeatInfo}.ics`;
             icsGen.download(filename);
             
         } catch (error) {
