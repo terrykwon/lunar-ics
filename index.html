@@ -19,7 +19,7 @@
         --color-background-secondary: rgba(255, 255, 255, 0.05);
         --color-background-tertiary: oklch(26.8% 0.007 34.298);
         --color-background-button: oklch(54.1% 0.281 293.009);
-        --color-background-button-hover: oklch(34.5% 0.01 69.832);
+        --color-background-button-hover: oklch(54.6% 0.245 262.881);
         --color-background-button-disabled: oklch(40.5% 0.012 75.832);
       }
 
@@ -37,7 +37,7 @@
 
       .container {
         background: var(--color-background-secondary);
-        padding: 24px;
+        padding: 16px 20px;
         border-radius: 24px;
         border: 1px solid var(--color-border);
         width: 100%;
@@ -73,8 +73,14 @@
       }
 
       .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
       }
+
+      .form-group--leap-month {
+        margin-top: -12px;
+        margin-bottom: 16px;
+      }
+
       label {
         display: block;
         margin: 8px 0;
@@ -91,6 +97,20 @@
         font-size: 16px;
         box-sizing: border-box;
         background-color: var(--color-background-tertiary);
+      }
+
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 36px;
+      }
+
+      select::-ms-expand {
+        display: none;
       }
       input:focus,
       select:focus {
@@ -109,19 +129,23 @@
         gap: 10px;
       }
       button {
-        background-color: var(--color-background-button);
-        border: 1px solid var(--color-border);
+        background: linear-gradient(
+          to right,
+          var(--color-background-button),
+          var(--color-background-button-hover)
+        );
+        border: none;
         color: white;
         padding: 12px 30px;
-        border-radius: 5px;
+        border-radius: 8px;
         font-size: 16px;
         cursor: pointer;
         width: 100%;
-        margin-top: 20px;
+        margin: 16px 0 16px 0;
+        transition: opacity 0.2s ease;
       }
       button:hover {
-        background-color: var(--color-background-button);
-        color: var(--color-text-primary);
+        opacity: 0.8;
       }
       button:disabled {
         background-color: var(--color-background-button-disabled);
@@ -155,6 +179,46 @@
         }
       }
 
+      footer {
+        margin-top: 120px;
+        padding: 20px;
+        text-align: center;
+        backdrop-filter: blur(2px);
+        width: 100%;
+      }
+
+      .footer-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-text-secondary);
+        gap: 12px;
+      }
+
+      .footer-author {
+        color: var(--color-text-secondary);
+        font-size: 14px;
+      }
+
+      .github-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.2s ease;
+      }
+
+      .github-link:hover {
+        color: var(--color-text-primary);
+      }
+
+      .github-link svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
     </style>
   </head>
   <body>
@@ -171,7 +235,7 @@
           <input
             type="text"
             id="eventName"
-            placeholder="예: 생일, 기념일"
+            placeholder="예: 할머니 생신"
             required
           />
         </div>
@@ -209,7 +273,7 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group form-group--leap-month">
           <label for="isLeapMonth">
             <input
               type="checkbox"
@@ -245,6 +309,26 @@
         <button type="submit">ICS 파일 생성</button>
       </form>
     </div>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-author">Made with ❤️ by terrykwon</div>
+        <span>|</span>
+        <a
+          href="https://github.com/terrykwon/lunar-ics"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="github-link"
+        >
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+            />
+          </svg>
+          GitHub
+        </a>
+      </div>
+    </footer>
 
     <script src="lunar-converter.js"></script>
     <script src="other/starry-background.js"></script>
