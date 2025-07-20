@@ -176,12 +176,6 @@ class MoonAnimation {
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         ctx.clip();
         
-        // Full moon - no shadow
-        if (Math.abs(phase - 0.5) < 0.02) {
-            ctx.restore();
-            return;
-        }
-        
         // New moon - full shadow
         if (phase < 0.02 || phase > 0.98) {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
@@ -190,34 +184,75 @@ class MoonAnimation {
             return;
         }
         
-        // Calculate illumination based on phase
-        let illuminated;
-        if (phase < 0.5) {
-            // Waxing: right side lit, left side dark
-            illuminated = phase * 2; // 0 to 1
+        // Full moon - no shadow
+        if (Math.abs(phase - 0.5) < 0.02) {
+            ctx.restore();
+            return;
+        }
+        
+        // For waxing and waning phases
+        if (phase <= 0.5) {
+            // Waxing phase (new to full)
+            const progress = phase / 0.5; // 0 to 1
             
-            // Draw left shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-            ctx.fillRect(centerX - radius - 5, centerY - radius - 5, radius + 5, radius * 2 + 10);
-            
-            // Draw curved shadow/light boundary
-            ctx.beginPath();
-            ctx.ellipse(centerX, centerY, radius * (1 - illuminated * 2), radius, 0, -Math.PI/2, Math.PI/2);
-            ctx.fillStyle = illuminated < 0.5 ? 'rgba(0, 0, 0, 0.9)' : '#fff8dc';
-            ctx.fill();
+            if (progress < 0.5) {
+                // Waxing crescent (shadow on left, curved inward)
+                const curveAmount = 1 - (progress * 2); // 1 to 0
+                
+                // Left side shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fillRect(centerX - radius - 5, centerY - radius - 5, radius + 5, radius * 2 + 10);
+                
+                // Curved terminator
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY, radius * curveAmount, radius, 0, -Math.PI/2, Math.PI/2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fill();
+            } else {
+                // Waxing gibbous (shadow on left, curved outward)
+                const curveAmount = (progress - 0.5) * 2; // 0 to 1
+                
+                // Left side shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fillRect(centerX - radius - 5, centerY - radius - 5, radius + 5, radius * 2 + 10);
+                
+                // Curved terminator (light colored, eating into shadow)
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY, radius * curveAmount, radius, 0, -Math.PI/2, Math.PI/2);
+                ctx.fillStyle = '#fff8dc';
+                ctx.fill();
+            }
         } else {
-            // Waning: left side lit, right side dark
-            illuminated = (phase - 0.5) * 2; // 0 to 1
+            // Waning phase (full to new)
+            const progress = (phase - 0.5) / 0.5; // 0 to 1
             
-            // Draw right shadow
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-            ctx.fillRect(centerX, centerY - radius - 5, radius + 5, radius * 2 + 10);
-            
-            // Draw curved shadow/light boundary
-            ctx.beginPath();
-            ctx.ellipse(centerX, centerY, radius * (illuminated * 2 - 1), radius, 0, -Math.PI/2, Math.PI/2);
-            ctx.fillStyle = illuminated < 0.5 ? '#fff8dc' : 'rgba(0, 0, 0, 0.9)';
-            ctx.fill();
+            if (progress < 0.5) {
+                // Waning gibbous (shadow on right, curved outward)
+                const curveAmount = progress * 2; // 0 to 1
+                
+                // Right side shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fillRect(centerX, centerY - radius - 5, radius + 5, radius * 2 + 10);
+                
+                // Curved terminator (dark colored, eating into light)
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY, radius * curveAmount, radius, 0, Math.PI/2, -Math.PI/2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fill();
+            } else {
+                // Waning crescent (shadow on right, curved inward)
+                const curveAmount = 1 - ((progress - 0.5) * 2); // 1 to 0
+                
+                // Right side shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fillRect(centerX, centerY - radius - 5, radius + 5, radius * 2 + 10);
+                
+                // Curved terminator (light colored)
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY, radius * curveAmount, radius, 0, Math.PI/2, -Math.PI/2);
+                ctx.fillStyle = '#fff8dc';
+                ctx.fill();
+            }
         }
         
         ctx.restore();
