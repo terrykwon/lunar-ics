@@ -120,7 +120,7 @@ class ICSGenerator {
             icsContent.push(`DTSTART;VALUE=DATE:${dateStr}`);
             icsContent.push(`DTEND;VALUE=DATE:${dateStr}`);
             icsContent.push(`SUMMARY:${event.name}`);
-            icsContent.push(`DESCRIPTION:Lunar calendar event`);
+            icsContent.push(`DESCRIPTION:음력 행사`);
             icsContent.push('END:VEVENT');
         });
         
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         const eventName = document.getElementById('eventName').value;
-        const lunarYear = parseInt(document.getElementById('lunarYear').value);
+        const lunarYear = parseInt(document.getElementById('lunarYear').value) || 0;
         const lunarMonth = parseInt(document.getElementById('lunarMonth').value);
         const lunarDay = parseInt(document.getElementById('lunarDay').value);
         const isLeapMonth = document.getElementById('isLeapMonth').checked;
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Note: The API doesn't handle leap months, so we'll ignore that parameter
         if (isLeapMonth) {
-            alert('Note: The Korean government API does not distinguish leap months. Proceeding with regular month calculation.');
+            alert('참고: 한국 정부 API는 윤달을 구분하지 않습니다. 일반 달로 계산합니다.');
         }
         
         const lunar = new LunarCalendarAPI();
@@ -176,19 +176,33 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Disable button during processing
         submitButton.disabled = true;
-        submitButton.textContent = 'Generating...';
+        submitButton.textContent = '생성 중...';
         
         try {
+            let startYear = lunarYear;
+            
+            // If no year provided, calculate from current year
+            if (!startYear) {
+                const today = new Date();
+                startYear = today.getFullYear();
+                
+                // Check if the lunar date for this year has already passed
+                const thisYearDate = await lunar.toSolar(startYear, lunarMonth, lunarDay);
+                if (thisYearDate < today) {
+                    startYear++; // Start from next year
+                }
+            }
+            
             if (repeatType === 'yearly') {
                 for (let i = 0; i < repeatYears; i++) {
-                    const targetYear = lunarYear + i;
+                    const targetYear = startYear + i;
                     if (targetYear <= 2100) {
                         const solarDate = await lunar.toSolar(targetYear, lunarMonth, lunarDay);
                         icsGen.addEvent(eventName, solarDate);
                     }
                 }
             } else {
-                const solarDate = await lunar.toSolar(lunarYear, lunarMonth, lunarDay);
+                const solarDate = await lunar.toSolar(startYear, lunarMonth, lunarDay);
                 icsGen.addEvent(eventName, solarDate);
             }
             
@@ -196,12 +210,12 @@ document.addEventListener('DOMContentLoaded', function() {
             icsGen.download(filename);
             
         } catch (error) {
-            alert('Error: ' + error.message + '\n\nPlease check the browser console for more details.');
-            console.error('Full error:', error);
+            alert('오류: ' + error.message + '\n\n브라우저 콘솔에서 자세한 내용을 확인하세요.');
+            console.error('전체 오류:', error);
         } finally {
             // Re-enable button
             submitButton.disabled = false;
-            submitButton.textContent = 'Generate ICS File';
+            submitButton.textContent = 'ICS 파일 생성';
         }
     });
 });

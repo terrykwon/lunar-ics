@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunar Date to ICS Converter</title>
+    <title>음력 날짜 ICS 변환기</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -79,50 +79,50 @@
 </head>
 <body>
     <div class="container">
-        <h1>Lunar Date to ICS Converter</h1>
+        <h1>음력 날짜 ICS 변환기</h1>
         
         <form id="lunarForm">
             <div class="form-group">
-                <label for="eventName">Event Name</label>
-                <input type="text" id="eventName" placeholder="e.g., Birthday, Anniversary" required>
+                <label for="eventName">행사명</label>
+                <input type="text" id="eventName" placeholder="예: 생일, 기념일" required>
             </div>
             
             <div class="form-group">
-                <label>Lunar Date</label>
+                <label>음력 날짜</label>
                 <div class="date-inputs">
-                    <input type="number" id="lunarYear" placeholder="Year" min="1900" max="2100" required>
-                    <input type="number" id="lunarMonth" placeholder="Month" min="1" max="12" required>
-                    <input type="number" id="lunarDay" placeholder="Day" min="1" max="30" required>
+                    <input type="number" id="lunarYear" placeholder="년도 (선택)" min="1900" max="2100">
+                    <input type="number" id="lunarMonth" placeholder="월" min="1" max="12" required>
+                    <input type="number" id="lunarDay" placeholder="일" min="1" max="30" required>
                 </div>
             </div>
             
             <div class="form-group">
                 <label for="isLeapMonth">
                     <input type="checkbox" id="isLeapMonth" style="width: auto; margin-right: 5px;">
-                    Leap Month
+                    윤달
                 </label>
             </div>
             
             <div class="form-group">
-                <label for="repeatType">Repeat Frequency</label>
+                <label for="repeatType">반복 설정</label>
                 <select id="repeatType" required>
-                    <option value="yearly">Yearly</option>
-                    <option value="none">No Repeat</option>
+                    <option value="yearly">매년 반복</option>
+                    <option value="none">반복 없음</option>
                 </select>
             </div>
             
             <div class="form-group" id="repeatYearsGroup">
-                <label for="repeatYears">Number of Years to Repeat</label>
+                <label for="repeatYears">반복 년수</label>
                 <input type="number" id="repeatYears" min="1" max="100" value="50" required>
             </div>
             
-            <button type="submit">Generate ICS File</button>
+            <button type="submit">ICS 파일 생성</button>
         </form>
         
         <div class="info">
-            This converter uses the Korean government's lunar calendar API. Enter a lunar date and it will generate an ICS file with the corresponding Gregorian dates for your calendar application.
+            이 변환기는 한국 정부의 음력 API를 사용합니다. 음력 날짜를 입력하면 캘린더 앱에서 사용할 수 있는 ICS 파일이 생성됩니다.
             <br><br>
-            <strong>Note:</strong> Due to browser security restrictions (CORS), you'll need to use a CORS proxy or run this locally with CORS disabled.
+            <strong>참고:</strong> 년도를 비워두면 가장 가까운 미래 날짜부터 시작합니다. 브라우저 보안 제한(CORS)으로 인해 CORS 프록시를 사용하거나 로컬에서 실행해야 할 수 있습니다.
         </div>
     </div>
     
