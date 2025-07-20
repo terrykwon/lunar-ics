@@ -29,20 +29,20 @@ class MoonAnimation {
         this.container.className = 'moon-container';
         this.container.style.cssText = `
             position: absolute;
-            width: 60px;
-            height: 60px;
-            left: -80px;
+            width: 100px;
+            height: 100px;
+            left: -120px;
             top: 50%;
             transform: translateY(-50%);
         `;
         
         // Create canvas for moon
         this.moonCanvas = document.createElement('canvas');
-        this.moonCanvas.width = 120; // 2x for retina
-        this.moonCanvas.height = 120;
+        this.moonCanvas.width = 200; // 2x for retina
+        this.moonCanvas.height = 200;
         this.moonCanvas.style.cssText = `
-            width: 60px;
-            height: 60px;
+            width: 100px;
+            height: 100px;
             position: absolute;
             top: 0;
             left: 0;
@@ -85,12 +85,12 @@ class MoonAnimation {
     
     drawMoon() {
         const ctx = this.ctx;
-        const centerX = 60;
-        const centerY = 60;
-        const radius = 25;
+        const centerX = 100;
+        const centerY = 100;
+        const radius = 40;
         
         // Clear canvas
-        ctx.clearRect(0, 0, 120, 120);
+        ctx.clearRect(0, 0, 200, 200);
         
         // Draw glow
         const glowRadius = radius + 20 + (this.glowIntensity * 10);
@@ -101,7 +101,7 @@ class MoonAnimation {
         gradient.addColorStop(1, 'transparent');
         
         ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 120, 120);
+        ctx.fillRect(0, 0, 200, 200);
         
         // Draw moon base (lit part)
         ctx.beginPath();
@@ -194,12 +194,12 @@ class MoonAnimation {
     }
     
     animate() {
-        // Update phase (complete cycle every 10 seconds)
-        this.phase += 0.002;
+        // Update phase (complete cycle every 60 seconds)
+        this.phase += 0.0003;
         if (this.phase > 1) this.phase = 0;
         
-        // Update glow pulsing
-        this.glowIntensity += 0.01 * this.glowDirection;
+        // Update glow pulsing (slower)
+        this.glowIntensity += 0.002 * this.glowDirection;
         if (this.glowIntensity > 1 || this.glowIntensity < 0.3) {
             this.glowDirection *= -1;
         }

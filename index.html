@@ -29,9 +29,11 @@
         width: 100%;
         background-color: var(--color-background);
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        min-height: 100vh;
+        padding: 20px;
       }
 
       .container {
@@ -44,11 +46,12 @@
       }
       h1 {
         color: var(--color-text-primary);
-        font-size: 1.8rem;
+        font-size: 2.5rem;
         letter-spacing: -0.02em;
-        margin-bottom: 16px;
+        margin-bottom: 40px;
         text-align: center;
         font-weight: 500;
+        position: relative;
       }
 
       .description {
@@ -120,8 +123,8 @@
     </style>
   </head>
   <body>
+    <h1>음력 날짜 ICS 변환기</h1>
     <div class="container">
-      <h1>음력 날짜 ICS 변환기</h1>
       <p class="description">
         음력 행사(생일, 기념일 등)을 양력으로 변환 후, 캘린더 앱에 간편하게
         등록할 수 있는 변환기입니다.
