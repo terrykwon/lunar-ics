@@ -166,8 +166,8 @@ class MoonAnimation {
     }
     
     drawPhase(ctx, centerX, centerY, radius) {
-        // Calculate phase angle for continuous rotation
-        const angle = this.phase * Math.PI * 2;
+        // Phase: 0 = new moon, 0.25 = first quarter, 0.5 = full moon, 0.75 = last quarter
+        const phase = this.phase;
         
         ctx.save();
         
@@ -176,28 +176,49 @@ class MoonAnimation {
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         ctx.clip();
         
-        // Calculate shadow position based on angle
-        // Distance from center for realistic phase effect
-        const shadowDistance = radius * 1.5;
-        const shadowX = centerX + Math.cos(angle) * shadowDistance;
-        const shadowY = centerY + Math.sin(angle) * shadowDistance * 0.3; // Slight vertical movement for realism
+        // Full moon - no shadow
+        if (Math.abs(phase - 0.5) < 0.02) {
+            ctx.restore();
+            return;
+        }
         
-        // Draw shadow circle
-        ctx.beginPath();
-        const shadowRadius = radius * 1.8;
-        ctx.arc(shadowX, shadowY, shadowRadius, 0, Math.PI * 2);
+        // New moon - full shadow
+        if (phase < 0.02 || phase > 0.98) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+            ctx.fillRect(centerX - radius - 5, centerY - radius - 5, radius * 2 + 10, radius * 2 + 10);
+            ctx.restore();
+            return;
+        }
         
-        // Create gradient for softer shadow edge
-        const gradient = ctx.createRadialGradient(
-            shadowX, shadowY, shadowRadius * 0.7,
-            shadowX, shadowY, shadowRadius
-        );
-        gradient.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
-        gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.9)');
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
-        
-        ctx.fillStyle = gradient;
-        ctx.fill();
+        // Calculate illumination based on phase
+        let illuminated;
+        if (phase < 0.5) {
+            // Waxing: right side lit, left side dark
+            illuminated = phase * 2; // 0 to 1
+            
+            // Draw left shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+            ctx.fillRect(centerX - radius - 5, centerY - radius - 5, radius + 5, radius * 2 + 10);
+            
+            // Draw curved shadow/light boundary
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY, radius * (1 - illuminated * 2), radius, 0, -Math.PI/2, Math.PI/2);
+            ctx.fillStyle = illuminated < 0.5 ? 'rgba(0, 0, 0, 0.9)' : '#fff8dc';
+            ctx.fill();
+        } else {
+            // Waning: left side lit, right side dark
+            illuminated = (phase - 0.5) * 2; // 0 to 1
+            
+            // Draw right shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+            ctx.fillRect(centerX, centerY - radius - 5, radius + 5, radius * 2 + 10);
+            
+            // Draw curved shadow/light boundary
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY, radius * (illuminated * 2 - 1), radius, 0, -Math.PI/2, Math.PI/2);
+            ctx.fillStyle = illuminated < 0.5 ? '#fff8dc' : 'rgba(0, 0, 0, 0.9)';
+            ctx.fill();
+        }
         
         ctx.restore();
     }
