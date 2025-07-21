@@ -5,7 +5,7 @@ class MoonAnimation {
         this.moonCanvas = null;
         this.ctx = null;
         this.phase = 0;
-        this.animationSpeed = 0.0003; // Complete cycle every ~21 seconds
+        this.animationSpeed = 0.0008; // Complete cycle every ~21 seconds
         
         this.init();
     }
@@ -143,7 +143,7 @@ class MoonAnimation {
         let darkX;
         const darkY = centerY;
         const darkRadius = radius * 1.2;
-        const travelDistance = radius * 2; // Reduced distance so moon is covered more often
+        const travelDistance = radius * 3.2; // Reduced distance so moon is covered more often
         
         // Left to right movement with continuous loop
         const progress = this.phase; // 0 to 1
